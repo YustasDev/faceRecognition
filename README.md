@@ -4,6 +4,9 @@ The ProgForce.Ltd. employee facial recognition system
 
 ## Getting started
 
+To load the environment from a file, you must execute at the command line: conda env create -f env_tvm5t.yml
+The "env_tvm5t.yml" file is in the repository.
+
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
 Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
