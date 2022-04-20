@@ -19,8 +19,14 @@ import tf2onnx
 import onnxruntime as ort
 import subprocess
 import onnx
+import torch
+from torchvision import datasets, transforms
+from torch import nn
+import torch.nn.functional as F
+import face_recognition
 
-CLASSIFIER_URL = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4"
+
+#CLASSIFIER_URL = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4"
 IMAGE_RES = 224
 
 def export_to_onnx(model):
@@ -50,7 +56,46 @@ def get_image(path, show=False):
 
 
 if __name__ == '__main__':
+    device = "Cuda" if torch.cuda.is_available() else "CPU"
+    print(f"Using {device} device")
 
+    pictureJ = face_recognition.load_image_file("K1.jpg")
+    my_face_encoding = face_recognition.face_encodings(pictureJ)[0]
+
+    # my_face_encoding now contains a universal 'encoding' of my facial features that can be compared to any other picture of a face!
+
+    unknown_picture = face_recognition.load_image_file("K3.jpg")
+    unknown_face_encoding = face_recognition.face_encodings(unknown_picture)[0]
+
+    # Now we can see the two face encodings are of the same person with `compare_faces`!
+
+    results = face_recognition.compare_faces([my_face_encoding], unknown_face_encoding)
+
+    if results[0] == True:
+        print("It's the same person")
+    else:
+        print("it's NOT the same person")
+
+    count_kernels = subprocess.run('face_recognition --cpus -1'.split(),  capture_output=True)
+    print(str(count_kernels))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    """
     layer = hub.KerasLayer(CLASSIFIER_URL, input_shape=(IMAGE_RES, IMAGE_RES, 3), trainable=True)
     #import pdb; pdb.set_trace()
     model = tf.keras.Sequential([
@@ -149,3 +194,4 @@ if __name__ == '__main__':
     # cv2.imshow('Java', img)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+    """
