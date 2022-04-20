@@ -59,12 +59,17 @@ if __name__ == '__main__':
     device = "Cuda" if torch.cuda.is_available() else "CPU"
     print(f"Using {device} device")
 
-    pictureJ = face_recognition.load_image_file("K1.jpg")
+    if device=="CPU":
+        count_kernels = subprocess.run('face_recognition --cpus -1 ./KNOWN_PEOPLE_FOLDER/ ./IMAGE_TO_CHECK/'.split(),
+                                   capture_output=True)
+        print(str(count_kernels))
+
+    pictureJ = face_recognition.load_image_file("/home/progforce/facerecognition/KNOWN_PEOPLE_FOLDER/J1.jpg")
     my_face_encoding = face_recognition.face_encodings(pictureJ)[0]
 
     # my_face_encoding now contains a universal 'encoding' of my facial features that can be compared to any other picture of a face!
 
-    unknown_picture = face_recognition.load_image_file("K3.jpg")
+    unknown_picture = face_recognition.load_image_file("/home/progforce/facerecognition/IMAGE_TO_CHECK/K1.jpg")
     unknown_face_encoding = face_recognition.face_encodings(unknown_picture)[0]
 
     # Now we can see the two face encodings are of the same person with `compare_faces`!
@@ -76,8 +81,7 @@ if __name__ == '__main__':
     else:
         print("it's NOT the same person")
 
-    count_kernels = subprocess.run('face_recognition --cpus -1'.split(),  capture_output=True)
-    print(str(count_kernels))
+
 
 
 
