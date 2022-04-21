@@ -59,17 +59,51 @@ if __name__ == '__main__':
     device = "Cuda" if torch.cuda.is_available() else "CPU"
     print(f"Using {device} device")
 
-    if device=="CPU":
-        count_kernels = subprocess.run('face_recognition --cpus -1 ./KNOWN_PEOPLE_FOLDER/ ./IMAGE_TO_CHECK/'.split(),
-                                   capture_output=True)
-        print(str(count_kernels))
+    # if device=="CPU":
+    #     count_kernels = subprocess.run('face_recognition --cpus -1 ./KNOWN_PEOPLE_FOLDER/ ./IMAGE_TO_CHECK/'.split(),
+    #                                capture_output=True)
+    #     print(str(count_kernels))
 
-    pictureJ = face_recognition.load_image_file("/home/progforce/facerecognition/KNOWN_PEOPLE_FOLDER/J1.jpg")
+    # Load the jpg files into numpy arrays
+    j_image = face_recognition.load_image_file("./KNOWN_PEOPLE_FOLDER/J1.jpg")
+    me_image = face_recognition.load_image_file("./V1/V3.jpg")
+    k_image = face_recognition.load_image_file("./IMAGE_TO_CHECK/K1.jpg")
+    unknown_image = face_recognition.load_image_file("./V1/V6.jpg")
+
+    # Get the face encodings for each face in each image file
+    # Since there could be more than one face in each image, it returns a list of encodings.
+    # But since I know each image only has one face, I only care about the first encoding in each image, so I grab index 0.
+    try:
+        j_encoding = face_recognition.face_encodings(j_image)[0]
+        k_encoding = face_recognition.face_encodings(k_image)[0]
+        me_encoding = face_recognition.face_encodings(me_image)[0]
+        unknown_face_encoding = face_recognition.face_encodings(unknown_image)[0]
+    except IndexError:
+        print("I wasn't able to locate any faces in at least one of the images. Check the image files. Aborting...")
+        quit()
+
+    known_faces = [
+        j_encoding,
+        k_encoding,
+        me_encoding
+    ]
+
+    # results is an array of True/False telling if the unknown face matched anyone in the known_faces array
+    results = face_recognition.compare_faces(known_faces, unknown_face_encoding)
+
+    print("Is the unknown face a picture of J? {}".format(results[0]))
+    print("Is the unknown face a picture of K? {}".format(results[1]))
+    print("Is the unknown face a picture of Me? {}".format(results[2]))
+    print("Is the unknown face a new person that we've never seen before? {}".format(not True in results))
+
+
+    """"
+    pictureJ = face_recognition.load_image_file("/home/progforce/facerecognition/V1/V3.jpg")
     my_face_encoding = face_recognition.face_encodings(pictureJ)[0]
 
     # my_face_encoding now contains a universal 'encoding' of my facial features that can be compared to any other picture of a face!
 
-    unknown_picture = face_recognition.load_image_file("/home/progforce/facerecognition/IMAGE_TO_CHECK/K1.jpg")
+    unknown_picture = face_recognition.load_image_file("/home/progforce/facerecognition/V1/V10.jpg")
     unknown_face_encoding = face_recognition.face_encodings(unknown_picture)[0]
 
     # Now we can see the two face encodings are of the same person with `compare_faces`!
@@ -80,7 +114,7 @@ if __name__ == '__main__':
         print("It's the same person")
     else:
         print("it's NOT the same person")
-
+    """
 
 
 
