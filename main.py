@@ -1,4 +1,3 @@
-
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -6,6 +5,8 @@ from PIL import Image, ImageDraw
 import matplotlib.pylab as plt
 import torch
 import face_recognition
+import pyglet
+
 
 IMAGE_RES = 224
 
@@ -58,6 +59,7 @@ if __name__ == '__main__':
     face_encodings = []
     face_names = []
     process_this_frame = True
+    countFrame = 0
 
     while True:
         # Grab a single frame of video
@@ -69,8 +71,7 @@ if __name__ == '__main__':
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
         rgb_small_frame = small_frame[:, :, ::-1]
 
-
-        # Only process every other frame of video to save time
+        # Only process every other frame (or one in ten, we need to research) of video to save time
         if process_this_frame:
             # Find all the faces and face encodings in the current frame of video
             face_locations = face_recognition.face_locations(rgb_small_frame)
@@ -95,7 +96,14 @@ if __name__ == '__main__':
 
                 face_names.append(name)
 
-        process_this_frame = not process_this_frame
+        process_this_frame = False
+        #process_this_frame = not process_this_frame
+        countFrame += 1
+        if countFrame > 9:
+            process_this_frame = True
+            countFrame = 0
+
+
 
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
