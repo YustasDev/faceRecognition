@@ -6,6 +6,8 @@ import matplotlib.pylab as plt
 import torch
 import face_recognition
 import pyglet
+import threading
+import time
 
 
 IMAGE_RES = 224
@@ -24,6 +26,14 @@ def get_image(path, show=False):
         plt.imshow(img)
         plt.axis('off')
     return img
+
+# say a greeting for each name
+def thread_sounding(list_of_names):
+    for soundName in list_of_names:
+        song = pyglet.media.load(soundNames[soundName])
+        song.play()
+
+        #pyglet.app.run()
 
 
 
@@ -53,6 +63,8 @@ if __name__ == '__main__':
 
     known_face_encodings = [j_encoding, k_encoding, me_encoding]
     known_face_names = ["Jolie", "Katrin", "Me"]
+    soundNames = {'Jolie':'./SoundNames/Jsound.mp3', 'Katrin':'./SoundNames/Ksound.mp3',
+                  'Me':'./SoundNames/Vsound.mp3', 'Unknown':'./SoundNames/unknown.mp3'}
 
     # Initialize some variables
     face_locations = []
@@ -99,7 +111,7 @@ if __name__ == '__main__':
         process_this_frame = False
         #process_this_frame = not process_this_frame
         countFrame += 1
-        if countFrame > 9:
+        if countFrame > 10:
             process_this_frame = True
             countFrame = 0
 
@@ -107,7 +119,7 @@ if __name__ == '__main__':
 
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
-            # Scale back up face locations since the frame we detected in was scaled to 1/4 size
+            # Scale back up face locations since the frame we detected in was scaled to 1/2 size
             top *= 2
             right *= 2
             bottom *= 2
@@ -123,6 +135,13 @@ if __name__ == '__main__':
 
         # Display the resulting image
         cv2.imshow('Video', frame)
+
+        thread2 = threading.Thread(target=thread_sounding(face_names), args=(1,))
+        thread2.start()
+        thread2.join()
+
+
+        #thread_sounding(face_names)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
