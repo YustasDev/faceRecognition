@@ -29,11 +29,11 @@ def get_image(path, show=False):
 
 # say a greeting for each name
 def thread_sounding(list_of_names):
-    #time.sleep(2)
     for soundName in list_of_names:
         song = pyglet.media.load(soundNames[soundName])
         song.play()
         time.sleep(1)
+    #time.sleep(3)
 
 
 
@@ -109,21 +109,20 @@ if __name__ == '__main__':
 
                 face_names.append(name)
 
-            process_this_frame = False
-            countFrame += 1
-            if countFrame > 15:
-                process_this_frame = True
-
-
-            if len(face_names) > 0:
-                threadNew = threading.Thread(target=thread_sounding(face_names), args=())
-                threadNew.start()
-                #threadNew.join()
-
-            if threadNew != None and threadNew.is_alive():
-                process_this_frame = False
-            else: process_this_frame = True
+        process_this_frame = False
+        countFrame += 1
+        if countFrame > 15:
+            process_this_frame = True
             countFrame = 0
+
+        if len(face_names) > 0 and process_this_frame:
+            threadNew = threading.Thread(target=thread_sounding(face_names), args=())
+            threadNew.start()
+            process_this_frame = False
+
+        if threadNew != None and not threadNew.is_alive():
+            process_this_frame = True
+
 
 
         # Display the results
