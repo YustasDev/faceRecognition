@@ -29,11 +29,11 @@ def get_image(path, show=False):
 
 # say a greeting for each name
 def thread_sounding(list_of_names):
+    #time.sleep(2)
     for soundName in list_of_names:
         song = pyglet.media.load(soundNames[soundName])
         song.play()
-
-        #pyglet.app.run()
+        time.sleep(1)
 
 
 
@@ -72,6 +72,7 @@ if __name__ == '__main__':
     face_names = []
     process_this_frame = True
     countFrame = 0
+    threadNew = None
 
     while True:
         # Grab a single frame of video
@@ -108,13 +109,21 @@ if __name__ == '__main__':
 
                 face_names.append(name)
 
-        process_this_frame = False
-        #process_this_frame = not process_this_frame
-        countFrame += 1
-        if countFrame > 10:
-            process_this_frame = True
-            countFrame = 0
+            process_this_frame = False
+            countFrame += 1
+            if countFrame > 15:
+                process_this_frame = True
 
+
+            if len(face_names) > 0:
+                threadNew = threading.Thread(target=thread_sounding(face_names), args=())
+                threadNew.start()
+                #threadNew.join()
+
+            if threadNew != None and threadNew.is_alive():
+                process_this_frame = False
+            else: process_this_frame = True
+            countFrame = 0
 
 
         # Display the results
@@ -135,13 +144,6 @@ if __name__ == '__main__':
 
         # Display the resulting image
         cv2.imshow('Video', frame)
-
-        thread2 = threading.Thread(target=thread_sounding(face_names), args=(1,))
-        thread2.start()
-        thread2.join()
-
-
-        #thread_sounding(face_names)
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
