@@ -16,7 +16,7 @@ def thread_sounding(list_of_names):
     for soundName in list_of_names:
         load_sounding = soundNames[soundName]
         if load_sounding is not None:
-            song = pyglet.media.load(soundNames[soundName])
+            song = pyglet.media.load(load_sounding)
             song.play()
             time.sleep(1)
 
@@ -119,9 +119,6 @@ if __name__ == '__main__':
         # print(str(threadNew))
 
 
-
-
-
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
             # Scale back up face locations since the frame we detected in was scaled to 1/2 size
@@ -138,9 +135,10 @@ if __name__ == '__main__':
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
+        face_names = []
         # Display the resulting image
         cv2.imshow('Video', frame)
-        face_names = []
+
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
