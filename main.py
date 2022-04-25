@@ -31,8 +31,18 @@ if __name__ == '__main__':
     #     print(str(count_kernels))
 
     # Get a reference to webcam #0 (the default one)
-    video_capture = cv2.VideoCapture(0)
+    video_capture = cv2.VideoCapture(1)
 
+    # Find OpenCV version
+    (major_ver, _, _) = (cv2.__version__).split('.')
+
+    # be sure of the fps
+    if int(major_ver) < 3:
+        fps = video_capture.get(cv2.cv.CV_CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
+    else:
+        fps = video_capture.get(cv2.CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
 
     # Load the jpg files into numpy arrays
     j_image = face_recognition.load_image_file("./KNOWN_PEOPLE_FOLDER/J1.jpg")
