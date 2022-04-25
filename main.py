@@ -2,40 +2,23 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-import matplotlib.pylab as plt
 import torch
 import face_recognition
 import pyglet
 import threading
 import time
+import multiprocessing
+import asyncio
 
-
-IMAGE_RES = 224
-
-def preprocess(img):
-    img = img / 255.
-    img = cv2.resize(img, (IMAGE_RES, IMAGE_RES))
-    img = img.astype(np.float32)
-    img = np.expand_dims(img, axis=0)
-    return img
-
-def get_image(path, show=False):
-    with Image.open(path) as img:
-        img = np.array(img.convert('RGB'))
-    if show:
-        plt.imshow(img)
-        plt.axis('off')
-    return img
 
 # say a greeting for each name
 def thread_sounding(list_of_names):
     for soundName in list_of_names:
-        song = pyglet.media.load(soundNames[soundName])
-        song.play()
-        time.sleep(1)
-    #time.sleep(3)
-
-
+        load_sounding = soundNames[soundName]
+        if load_sounding is not None:
+            song = pyglet.media.load(soundNames[soundName])
+            song.play()
+            time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -64,13 +47,15 @@ if __name__ == '__main__':
     known_face_encodings = [j_encoding, k_encoding, me_encoding]
     known_face_names = ["Jolie", "Katrin", "Me"]
     soundNames = {'Jolie':'./SoundNames/Jsound.mp3', 'Katrin':'./SoundNames/Ksound.mp3',
-                  'Me':'./SoundNames/Vsound.mp3', 'Unknown':'./SoundNames/unknown.mp3'}
+                  'Me':'./SoundNames/Vsound.mp3', 'Unknown': None}
 
     # Initialize some variables
     face_locations = []
     face_encodings = []
     face_names = []
+    already_said_hello = set()
     process_this_frame = True
+    sound_launch = True
     countFrame = 0
     threadNew = None
 
@@ -90,7 +75,7 @@ if __name__ == '__main__':
             face_locations = face_recognition.face_locations(rgb_small_frame)
             face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
-            face_names = []
+            #face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -107,7 +92,9 @@ if __name__ == '__main__':
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
 
-                face_names.append(name)
+                if name not in already_said_hello:
+                    face_names.append(name)
+                    already_said_hello.add(name)
 
         process_this_frame = False
         countFrame += 1
@@ -115,13 +102,23 @@ if __name__ == '__main__':
             process_this_frame = True
             countFrame = 0
 
-        if len(face_names) > 0 and process_this_frame:
-            threadNew = threading.Thread(target=thread_sounding(face_names), args=())
-            threadNew.start()
-            process_this_frame = False
 
-        if threadNew != None and not threadNew.is_alive():
-            process_this_frame = True
+        if len(face_names) > 0 and sound_launch:
+            threadNew = multiprocessing.Process(target=thread_sounding(face_names), args=())
+            #threadNew = threading.Thread(target=thread_sounding(face_names), args=())
+            threadNew.start()
+            sound_launch = False
+
+        if threadNew is not None and not threadNew.is_alive():
+            sound_launch = True
+
+        # only debug
+        # print('face_names: ' + str(face_names))
+        # print('already_said_hello: ' + str(already_said_hello))
+        # print(str(sound_launch))
+        # print(str(threadNew))
+
+
 
 
 
@@ -143,6 +140,7 @@ if __name__ == '__main__':
 
         # Display the resulting image
         cv2.imshow('Video', frame)
+        face_names = []
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
