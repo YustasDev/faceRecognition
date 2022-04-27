@@ -20,15 +20,29 @@ def thread_sounding(list_of_names):
             song.play()
             time.sleep(1)
 
+def compare_face(name, dictionary, default="Unknown"):
+    if name in dictionary:
+        return dictionary[name]
+    print(default)
+
+
 
 class FaceRecognitionError(Exception): pass
 
+# Singleton class
 class Me:
-    count_recognition = 0
+    count_occurrence = 0
+    was_voiced = 0
+
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Me, cls).__new__(cls)
+        return cls.instance
+
 
     def __init__(self):
         self._start_time = None
-        self.count_recognition += 1
+        self.init_time = time.perf_counter()
 
     def start(self):
         """Starting a new timer"""
@@ -37,6 +51,10 @@ class Me:
             raise FaceRecognitionError("The timer is already running")
 
         self._start_time = time.perf_counter()
+
+    def current_time(self):
+        current_time = time.perf_counter() - self.init_time
+        return current_time
 
     def stop(self):
         """Stop timer and return elapsed time"""
@@ -47,10 +65,7 @@ class Me:
         elapsed_time = time.perf_counter() - self._start_time
         self._start_time = None
 
-        # Cut-off time = 5 minutes
-        if elapsed_time > 300:
-            return True
-        else: False
+        return elapsed_time
 
 class Jolie(Me): pass
 class Katrin(Me): pass
@@ -96,6 +111,9 @@ if __name__ == '__main__':
     soundNames = {'Jolie':'./SoundNames/Jsound.mp3', 'Katrin':'./SoundNames/Ksound.mp3',
                   'Me':'./SoundNames/Vsound.mp3', 'Unknown': None}
 
+    createInstance_known_face = {"Me": Me(), "Jolie": Jolie(), "Katrin": Katrin()}
+
+
     # Initialize some variables
     face_locations = []
     face_encodings = []
@@ -105,6 +123,9 @@ if __name__ == '__main__':
     sound_launch = True
     countFrame = 0
     threadNew = None
+    frequency_of_greeting = 10    # once per seconds
+    name_instances_set = set()
+    time_label = 0
 
     while True:
         # Grab a single frame of video
@@ -138,10 +159,42 @@ if __name__ == '__main__':
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
+#============================================================= new version ============================>
+                try:
+                    name_instance = compare_face(name, createInstance_known_face)
+                    #name_instances_set.add(name_instance)
+                    if name_instance.count_occurrence == 0 or name_instance.current_time() > time_label + frequency_of_greeting:
+                        name_instance.was_voiced += 1
+                        name_instance.count_occurrence += 1
+                        if name_instance.was_voiced < 4:
+                            face_names.append(name)
+                            time_label = name_instance.current_time()
 
-                if name not in already_said_hello:
-                    face_names.append(name)
-                    already_said_hello.add(name)
+                        # ================= only debug ======================>
+                            print('$' * 100)
+                            print(name)
+                            print(name_instance.count_occurrence)
+                            print(str(name_instance.current_time()))
+                            print(name_instance.was_voiced)
+
+                        # ======================================================================================================>
+
+                except AttributeError: continue
+
+                print('*' * 100)
+                print(name)
+                print(name_instance.count_occurrence)
+                print(str(name_instance.current_time()))
+                print(name_instance.was_voiced)
+
+
+
+                # ==> old version
+                # if name not in already_said_hello:
+                #     face_names.append(name)
+                #     already_said_hello.add(name)
+
+
 
         process_this_frame = False
         countFrame += 1
@@ -183,6 +236,7 @@ if __name__ == '__main__':
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
         face_names = []
+
         # Display the resulting image
         cv2.imshow('Video', frame)
 
