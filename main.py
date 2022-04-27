@@ -24,11 +24,11 @@ def thread_sounding(list_of_names):
 class FaceRecognitionError(Exception): pass
 
 class Me:
-
     count_recognition = 0
 
     def __init__(self):
         self._start_time = None
+        self.count_recognition += 1
 
     def start(self):
         """Starting a new timer"""
@@ -48,20 +48,12 @@ class Me:
         self._start_time = None
 
         # Cut-off time = 5 minutes
-        if elapsed_time < 300:
-            return False
-        else: True
+        if elapsed_time > 300:
+            return True
+        else: False
 
-
-
-
-
-
-
-
-
-
-
+class Jolie(Me): pass
+class Katrin(Me): pass
 
 
 
