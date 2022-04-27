@@ -21,6 +21,51 @@ def thread_sounding(list_of_names):
             time.sleep(1)
 
 
+class FaceRecognitionError(Exception): pass
+
+class Me:
+
+    count_recognition = 0
+
+    def __init__(self):
+        self._start_time = None
+
+    def start(self):
+        """Starting a new timer"""
+
+        if self._start_time is not None:
+            raise FaceRecognitionError("The timer is already running")
+
+        self._start_time = time.perf_counter()
+
+    def stop(self):
+        """Stop timer and return elapsed time"""
+
+        if self._start_time is None:
+            raise FaceRecognitionError("The timer doesn't work")
+
+        elapsed_time = time.perf_counter() - self._start_time
+        self._start_time = None
+
+        # Cut-off time = 5 minutes
+        if elapsed_time < 300:
+            return False
+        else: True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     device = "Cuda" if torch.cuda.is_available() else "CPU"
     print(f"Using {device} device")
