@@ -173,6 +173,7 @@ if __name__ == '__main__':
                         # ================= only debug ======================>
                             print('$' * 100)
                             print(name)
+                            print(name_instance.init_time)
                             print(name_instance.count_occurrence)
                             print(str(name_instance.current_time()))
                             print(name_instance.was_voiced)
@@ -185,6 +186,7 @@ if __name__ == '__main__':
                 print(name)
                 print(name_instance.count_occurrence)
                 print(str(name_instance.current_time()))
+                print(time_label)
                 print(name_instance.was_voiced)
 
 
