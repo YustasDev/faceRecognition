@@ -20,6 +20,13 @@ def thread_sounding(list_of_names):
             song.play()
             time.sleep(1)
 
+def playback_sounding(list_mp3_files):
+    for sound in list_mp3_files:
+        if sound is not None:
+            song = pyglet.media.load(sound)
+            song.play()
+            time.sleep(1)
+
 def compare_face(name, dictionary, default="Not in the dictionary"):
     if name in dictionary:
         return dictionary[name]
@@ -31,7 +38,6 @@ def compare_face(name, dictionary, default="Not in the dictionary"):
 
 class FaceRecognitionError(Exception): pass
 
-# Singleton class
 class Person:
     count_occurrence = 0
     was_voiced = 0
@@ -108,17 +114,16 @@ if __name__ == '__main__':
 
     known_face_encodings = [j_encoding, k_encoding, me_encoding]
     known_face_names = ["Jolie", "Katrin", "Me"]
-    soundNames = {'Jolie':'./SoundNames/Jsound.mp3', 'Katrin':'./SoundNames/Ksound.mp3',
-                  'Me':'./SoundNames/Vsound.mp3', 'Unknown': None}
+    soundNames = {'Jolie':['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3'], 'Katrin':'./SoundNames/Ksound.mp3',
+                  'Me':['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3'], 'Unknown': None}
 
-    #createInstance_known_face = {"Me": Person("Me"), "Jolie": Person("Jolie"), "Katrin": Person("Katrin")}
 
 
     # Initialize some variables
     face_locations = []
     face_encodings = []
     face_names = []
-    already_said_hello = set()
+    #already_said_hello = set()
     process_this_frame = True
     sound_launch = True
     countFrame = 0
@@ -127,6 +132,8 @@ if __name__ == '__main__':
     number_of_messages = 3        # number of playing sound files (mp.3 files)
     time_label = 0
     created_instances = {}
+    playback_files = []
+
 
 
     while True:
@@ -176,6 +183,10 @@ if __name__ == '__main__':
                         name_instance.count_occurrence += 1
                         if name_instance.was_voiced < number_of_messages + 1:
                             face_names.append(name)
+
+                            sound = soundNames[name][name_instance.was_voiced - 1]  # selection mp3.file by index
+                            playback_files.append(sound)
+
                             time_label = name_instance.current_time()
                             created_instances[name] = name_instance
 
@@ -188,13 +199,15 @@ if __name__ == '__main__':
                             print(created_instances)
 
 
-                print('НЕТ озвучки' * 10)
-                print(name)
-                print(name_instance)
-                print(name_instance.count_occurrence)
-                print(str(name_instance.current_time()))
-                print(time_label)
-                print(name_instance.was_voiced)
+
+
+                # print('НЕТ озвучки' * 10)
+                # print(name)
+                # print(name_instance)
+                # print(name_instance.count_occurrence)
+                # print(str(name_instance.current_time()))
+                # print(time_label)
+                # print(name_instance.was_voiced)
 
 
                 # ==> old version
@@ -212,7 +225,7 @@ if __name__ == '__main__':
 
 
         if len(face_names) > 0 and sound_launch:
-            threadNew = multiprocessing.Process(target=thread_sounding(face_names), args=())
+            threadNew = multiprocessing.Process(target=playback_sounding(playback_files), args=())
             #threadNew = threading.Thread(target=thread_sounding(face_names), args=())
             threadNew.start()
             sound_launch = False
@@ -244,6 +257,8 @@ if __name__ == '__main__':
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
         face_names = []
+        playback_files = []
+
 
         # Display the resulting image
         cv2.imshow('Video', frame)
