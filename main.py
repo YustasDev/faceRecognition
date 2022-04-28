@@ -12,14 +12,6 @@ import asyncio
 
 
 # say a greeting for each name
-def thread_sounding(list_of_names):
-    for soundName in list_of_names:
-        load_sounding = soundNames[soundName]
-        if load_sounding is not None:
-            song = pyglet.media.load(load_sounding)
-            song.play()
-            time.sleep(1)
-
 def playback_sounding(list_mp3_files):
     for sound in list_mp3_files:
         if sound is not None:
@@ -75,10 +67,6 @@ class Person:
         return elapsed_time
 
 
-
-
-
-
 if __name__ == '__main__':
     device = "Cuda" if torch.cuda.is_available() else "CPU"
     print(f"Using {device} device")
@@ -102,38 +90,48 @@ if __name__ == '__main__':
         fps = video_capture.get(cv2.CAP_PROP_FPS)
         print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
 
-    # Load the jpg files into numpy arrays
-    j_image = face_recognition.load_image_file("./KNOWN_PEOPLE_FOLDER/J1.jpg")
-    k_image = face_recognition.load_image_file("./IMAGE_TO_CHECK/K1.jpg")
-    me_image = face_recognition.load_image_file("./V1/V3.jpg")
-    unknown_image = face_recognition.load_image_file("./V1/V2.jpg")
-
-    j_encoding = face_recognition.face_encodings(j_image)[0]
-    k_encoding = face_recognition.face_encodings(k_image)[0]
-    me_encoding = face_recognition.face_encodings(me_image)[0]
-
-    known_face_encodings = [j_encoding, k_encoding, me_encoding]
-    known_face_names = ["Jolie", "Katrin", "Me"]
-    soundNames = {'Jolie':['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3'], 'Katrin':'./SoundNames/Ksound.mp3',
-                  'Me':['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3'], 'Unknown': None}
-
-
+    dict_persons = {
+        'Jolie': {
+        'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
+        'voice': ['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3']
+    },
+        'Katrin': {
+        'image': "./IMAGE_TO_CHECK/K1.jpg",
+        'voice': ['./SoundNames/Ksound.mp3', './SoundNames/Ksound2.mp3', './SoundNames/Ksound3.mp3']
+    },
+        'Me': {
+        'image': "./V1/V3.jpg",
+        'voice': ['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3']
+        }
+    }
 
     # Initialize some variables
     face_locations = []
     face_encodings = []
     face_names = []
-    #already_said_hello = set()
     process_this_frame = True
     sound_launch = True
     countFrame = 0
     threadNew = None
-    frequency_of_greeting = 10    # voiceover no more than once per ... seconds
-    number_of_messages = 3        # number of playing sound files (mp.3 files)
+    frequency_of_greeting = 10  # voiceover no more than once per ... seconds
+    number_of_messages = 3  # number of playing sound files (mp.3 files)
     time_label = 0
     created_instances = {}
     playback_files = []
+    images = []
+    known_face_encodings = []
+    known_face_names = []
 
+
+    # Load the jpg files into numpy arrays
+    iter_images = iter(dict_persons)
+    keys_dict = list(iter_images)
+    for key in keys_dict:
+        known_face_names.append(key)
+        images.append(face_recognition.load_image_file(dict_persons.get(key).get('image')))
+
+    for img in images:
+        known_face_encodings.append(face_recognition.face_encodings(img)[0])
 
 
     while True:
@@ -168,15 +166,13 @@ if __name__ == '__main__':
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
-                    print(name)
-                    print(created_instances)
-#============================================================= new version ============================>
+
                 if name != "Unknown":
                     name_instance = compare_face(name, created_instances)
-                    print(name_instance)
+                    #print(name_instance)
                     if name_instance is None:
                         name_instance = Person(name)
-                        print(name_instance)
+                        #print(name_instance)
 
                     if name_instance.count_occurrence == 0 or name_instance.current_time() > time_label + frequency_of_greeting:
                         name_instance.was_voiced += 1
@@ -184,37 +180,12 @@ if __name__ == '__main__':
                         if name_instance.was_voiced < number_of_messages + 1:
                             face_names.append(name)
 
-                            sound = soundNames[name][name_instance.was_voiced - 1]  # selection mp3.file by index
+                            sound = dict_persons.get(name).get('voice')[name_instance.was_voiced - 1]  # selection mp3.file by index
+                            #sound = soundNames[name][name_instance.was_voiced - 1]  # selection mp3.file by index
                             playback_files.append(sound)
 
                             time_label = name_instance.current_time()
                             created_instances[name] = name_instance
-
-                            print('ОЗВУЧКА' * 20)
-                            print(name)
-                            print(name_instance)
-                            print(name_instance.count_occurrence)
-                            print(str(name_instance.current_time()))
-                            print(name_instance.was_voiced)
-                            print(created_instances)
-
-
-
-
-                # print('НЕТ озвучки' * 10)
-                # print(name)
-                # print(name_instance)
-                # print(name_instance.count_occurrence)
-                # print(str(name_instance.current_time()))
-                # print(time_label)
-                # print(name_instance.was_voiced)
-
-
-                # ==> old version
-                # if name not in already_said_hello:
-                #     face_names.append(name)
-                #     already_said_hello.add(name)
-
 
 
         process_this_frame = False
@@ -232,12 +203,6 @@ if __name__ == '__main__':
 
         if threadNew is not None and not threadNew.is_alive():
             sound_launch = True
-
-        # only debug
-        # print('face_names: ' + str(face_names))
-        # print('already_said_hello: ' + str(already_said_hello))
-        # print(str(sound_launch))
-        # print(str(threadNew))
 
 
         # Display the results
@@ -264,7 +229,7 @@ if __name__ == '__main__':
         cv2.imshow('Video', frame)
 
 
-        # Hit 'q' on the keyboard to quit!
+        # Hit 'q' on the keyboard to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
