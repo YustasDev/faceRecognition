@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Vitaly",
+    "voice": "/voices/vitaly.mp3",
+    "image": "/images/vitaly.jpg",
+  }, ...
+]
+{
+  "Vitaly": {
+    "voice": "/voices/vitaly.mp3",
+    "image": "/images/vitaly.jpg"
+  }, ...
+}

@@ -20,29 +20,30 @@ def thread_sounding(list_of_names):
             song.play()
             time.sleep(1)
 
-def compare_face(name, dictionary, default="Unknown"):
+def compare_face(name, dictionary, default="Not in the dictionary"):
     if name in dictionary:
         return dictionary[name]
-    print(default)
+    else:
+        print(default)
+        return None
 
 
 
 class FaceRecognitionError(Exception): pass
 
 # Singleton class
-class Me:
+class Person:
     count_occurrence = 0
     was_voiced = 0
 
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Me, cls).__new__(cls)
-        return cls.instance
-
-
-    def __init__(self):
+    def __init__(self, name):
+        self.__name = name
         self._start_time = None
         self.init_time = time.perf_counter()
+
+    @property
+    def name(self):
+        return self.__name
 
     def start(self):
         """Starting a new timer"""
@@ -67,8 +68,7 @@ class Me:
 
         return elapsed_time
 
-class Jolie(Me): pass
-class Katrin(Me): pass
+
 
 
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     soundNames = {'Jolie':'./SoundNames/Jsound.mp3', 'Katrin':'./SoundNames/Ksound.mp3',
                   'Me':'./SoundNames/Vsound.mp3', 'Unknown': None}
 
-    createInstance_known_face = {"Me": Me(), "Jolie": Jolie(), "Katrin": Katrin()}
+    #createInstance_known_face = {"Me": Person("Me"), "Jolie": Person("Jolie"), "Katrin": Person("Katrin")}
 
 
     # Initialize some variables
@@ -123,9 +123,11 @@ if __name__ == '__main__':
     sound_launch = True
     countFrame = 0
     threadNew = None
-    frequency_of_greeting = 10    # once per seconds
-    name_instances_set = set()
+    frequency_of_greeting = 10    # voiceover no more than once per ... seconds
+    number_of_messages = 3        # number of playing sound files (mp.3 files)
     time_label = 0
+    created_instances = {}
+
 
     while True:
         # Grab a single frame of video
@@ -159,36 +161,40 @@ if __name__ == '__main__':
                 best_match_index = np.argmin(face_distances)
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
+                    print(name)
+                    print(created_instances)
 #============================================================= new version ============================>
-                try:
-                    name_instance = compare_face(name, createInstance_known_face)
-                    #name_instances_set.add(name_instance)
+                if name != "Unknown":
+                    name_instance = compare_face(name, created_instances)
+                    print(name_instance)
+                    if name_instance is None:
+                        name_instance = Person(name)
+                        print(name_instance)
+
                     if name_instance.count_occurrence == 0 or name_instance.current_time() > time_label + frequency_of_greeting:
                         name_instance.was_voiced += 1
                         name_instance.count_occurrence += 1
-                        if name_instance.was_voiced < 4:
+                        if name_instance.was_voiced < number_of_messages + 1:
                             face_names.append(name)
                             time_label = name_instance.current_time()
+                            created_instances[name] = name_instance
 
-                        # ================= only debug ======================>
-                            print('$' * 100)
+                            print('ОЗВУЧКА' * 20)
                             print(name)
-                            print(name_instance.init_time)
+                            print(name_instance)
                             print(name_instance.count_occurrence)
                             print(str(name_instance.current_time()))
                             print(name_instance.was_voiced)
+                            print(created_instances)
 
-                        # ======================================================================================================>
 
-                except AttributeError: continue
-
-                print('*' * 100)
+                print('НЕТ озвучки' * 10)
                 print(name)
+                print(name_instance)
                 print(name_instance.count_occurrence)
                 print(str(name_instance.current_time()))
                 print(time_label)
                 print(name_instance.was_voiced)
-
 
 
                 # ==> old version
