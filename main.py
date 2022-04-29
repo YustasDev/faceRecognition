@@ -18,7 +18,6 @@ import json
 
 
 
-
 # say a greeting for each name
 def playback_sounding(list_mp3_files):
     for sound in list_mp3_files:
@@ -114,7 +113,6 @@ if __name__ == '__main__':
     with open("person.json", "r") as json_file:
         dict_persons = json.load(json_file)
 
-
     # dict_persons = {
     #     'Jolie': {
     #     'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
@@ -180,11 +178,11 @@ if __name__ == '__main__':
 
         rgb_frame = frame[:, :, ::-1]
         if process_this_frame:
+            # Find all the faces and face encodings in the current frame of video
             face_locations = face_recognition.face_locations(rgb_frame)
             face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
 
-
-        #face_names = []
+            #face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -231,22 +229,6 @@ if __name__ == '__main__':
                             with open('created_instances.piсkle', 'wb+') as f:
                                 pickle.dump(created_instances, f)
 
-                            print('ОЗВУЧКА' * 20)
-                            print(name)
-                            print(name_instance)
-                            print(name_instance.count_occurrence)
-                            print(str(name_instance.current_time()))
-                            print(name_instance.was_voiced)
-                            print(created_instances)
-
-                # print('НЕТ озвучки' * 10)
-                # print(name)
-                # print(name_instance)
-                # print(name_instance.count_occurrence)
-                # print(str(name_instance.current_time()))
-                # print(time_label)
-                # print(name_instance.was_voiced)
-
         process_this_frame = False
         countFrame += 1
         if countFrame > 15:
@@ -262,17 +244,14 @@ if __name__ == '__main__':
         if threadNew is not None and not threadNew.is_alive():
             sound_launch = True
 
-        """
+
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
             # Scale back up face locations since the frame we detected in was scaled to 1/2 size
-            top *= 2
-            right *= 2
-            bottom *= 2
-            left *= 2
-        """
-
-        for (top, right, bottom, left), name in zip(face_locations, face_names):
+            # top *= 2
+            # right *= 2
+            # bottom *= 2
+            # left *= 2
 
             # Draw a box around the face
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
