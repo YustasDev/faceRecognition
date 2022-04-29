@@ -1,13 +1,14 @@
-[
-  {
-    "name": "Vitaly",
-    "voice": "/voices/vitaly.mp3",
-    "image": "/images/vitaly.jpg",
-  }, ...
-]
 {
-  "Vitaly": {
-    "voice": "/voices/vitaly.mp3",
-    "image": "/images/vitaly.jpg"
-  }, ...
+   "Jolie": {
+        "image": "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
+        "voice": ["./SoundNames/Jsound.mp3", "./SoundNames/Jsound2.mp3", "./SoundNames/Jsound3.mp3"]
+    },
+    "Katrin": {
+        "image": "./IMAGE_TO_CHECK/K1.jpg",
+        "voice": ["./SoundNames/Ksound.mp3", "./SoundNames/Ksound2.mp3", "./SoundNames/Ksound3.mp3"]
+    },
+    "Me": {
+        "image": "./V1/V3.jpg",
+        "voice": ["./SoundNames/Vsound.mp3", "./SoundNames/Vsound2.mp3", "./SoundNames/Vsound3.mp3"]
+        }
 }

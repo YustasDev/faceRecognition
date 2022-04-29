@@ -12,6 +12,8 @@ import asyncio
 import pickle
 import os
 import pathlib
+import json
+
 
 
 
@@ -99,7 +101,7 @@ if __name__ == '__main__':
     check_file = pathlib.Path('created_instances.piсkle').is_file()
     if check_file:
         while True:
-            restore_history = input("restore the history of facial recognition to what it was before it was turned off?  enter Y/N")
+            restore_history = input("Restore the history of facial recognition to what it was before it was turned off?  enter Y/N")
             if restore_history == 'N' or restore_history == 'n':
                 path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'created_instances.piсkle')
                 os.remove(path)
@@ -109,21 +111,24 @@ if __name__ == '__main__':
                 break
             else: print("Please, enter 'Y' or 'N'")
 
+    with open("person.json", "r") as json_file:
+        dict_persons = json.load(json_file)
 
-    dict_persons = {
-        'Jolie': {
-        'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
-        'voice': ['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3']
-    },
-        'Katrin': {
-        'image': "./IMAGE_TO_CHECK/K1.jpg",
-        'voice': ['./SoundNames/Ksound.mp3', './SoundNames/Ksound2.mp3', './SoundNames/Ksound3.mp3']
-    },
-        'Me': {
-        'image': "./V1/V3.jpg",
-        'voice': ['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3']
-        }
-    }
+
+    # dict_persons = {
+    #     'Jolie': {
+    #     'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
+    #     'voice': ['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3']
+    # },
+    #     'Katrin': {
+    #     'image': "./IMAGE_TO_CHECK/K1.jpg",
+    #     'voice': ['./SoundNames/Ksound.mp3', './SoundNames/Ksound2.mp3', './SoundNames/Ksound3.mp3']
+    # },
+    #     'Me': {
+    #     'image': "./V1/V3.jpg",
+    #     'voice': ['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3']
+    #     }
+    # }
 
     # Initialize some variables
     face_locations = []
@@ -158,7 +163,9 @@ if __name__ == '__main__':
         # Grab a single frame of video
         ret, frame = video_capture.read()
 
-        # Resize frame of video to 1/4 size for faster face recognition processing
+        # as an option - speed up the work but worsen the recognition
+        """
+        # Resize frame of video to 1/2 size for faster face recognition processing
         small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
 
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
@@ -168,9 +175,16 @@ if __name__ == '__main__':
         if process_this_frame:
             # Find all the faces and face encodings in the current frame of video
             face_locations = face_recognition.face_locations(rgb_small_frame)
-            face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+            face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)  
+        """
 
-            #face_names = []
+        rgb_frame = frame[:, :, ::-1]
+        if process_this_frame:
+            face_locations = face_recognition.face_locations(rgb_frame)
+            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+
+
+        #face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -217,6 +231,22 @@ if __name__ == '__main__':
                             with open('created_instances.piсkle', 'wb+') as f:
                                 pickle.dump(created_instances, f)
 
+                            print('ОЗВУЧКА' * 20)
+                            print(name)
+                            print(name_instance)
+                            print(name_instance.count_occurrence)
+                            print(str(name_instance.current_time()))
+                            print(name_instance.was_voiced)
+                            print(created_instances)
+
+                # print('НЕТ озвучки' * 10)
+                # print(name)
+                # print(name_instance)
+                # print(name_instance.count_occurrence)
+                # print(str(name_instance.current_time()))
+                # print(time_label)
+                # print(name_instance.was_voiced)
+
         process_this_frame = False
         countFrame += 1
         if countFrame > 15:
@@ -232,7 +262,7 @@ if __name__ == '__main__':
         if threadNew is not None and not threadNew.is_alive():
             sound_launch = True
 
-
+        """
         # Display the results
         for (top, right, bottom, left), name in zip(face_locations, face_names):
             # Scale back up face locations since the frame we detected in was scaled to 1/2 size
@@ -240,6 +270,9 @@ if __name__ == '__main__':
             right *= 2
             bottom *= 2
             left *= 2
+        """
+
+        for (top, right, bottom, left), name in zip(face_locations, face_names):
 
             # Draw a box around the face
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
