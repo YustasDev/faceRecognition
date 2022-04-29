@@ -9,6 +9,12 @@ import threading
 import time
 import multiprocessing
 import asyncio
+import pickle
+import os
+import pathlib
+
+
+
 
 
 # say a greeting for each name
@@ -90,6 +96,20 @@ if __name__ == '__main__':
         fps = video_capture.get(cv2.CAP_PROP_FPS)
         print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
 
+    check_file = pathlib.Path('created_instances.piсkle').is_file()
+    if check_file:
+        while True:
+            restore_history = input("restore the history of facial recognition to what it was before it was turned off?  enter Y/N")
+            if restore_history == 'N' or restore_history == 'n':
+                path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'created_instances.piсkle')
+                os.remove(path)
+                break
+            elif restore_history == 'Y' or restore_history == 'y':
+                print('History of facial recognition was restore')
+                break
+            else: print("Please, enter 'Y' or 'N'")
+
+
     dict_persons = {
         'Jolie': {
         'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
@@ -167,6 +187,12 @@ if __name__ == '__main__':
                 if matches[best_match_index]:
                     name = known_face_names[best_match_index]
 
+                # restore created_instances from file
+                check_file = pathlib.Path('created_instances.piсkle').is_file()
+                if check_file:
+                    with open('created_instances.piсkle', 'rb') as f:
+                        created_instances = pickle.load(f)
+
                 if name != "Unknown":
                     name_instance = compare_face(name, created_instances)
                     #print(name_instance)
@@ -187,13 +213,15 @@ if __name__ == '__main__':
                             time_label = name_instance.current_time()
                             created_instances[name] = name_instance
 
+                            # save created_instances to file
+                            with open('created_instances.piсkle', 'wb+') as f:
+                                pickle.dump(created_instances, f)
 
         process_this_frame = False
         countFrame += 1
         if countFrame > 15:
             process_this_frame = True
             countFrame = 0
-
 
         if len(face_names) > 0 and sound_launch:
             threadNew = multiprocessing.Process(target=playback_sounding(playback_files), args=())
@@ -223,7 +251,6 @@ if __name__ == '__main__':
 
         face_names = []
         playback_files = []
-
 
         # Display the resulting image
         cv2.imshow('Video', frame)
