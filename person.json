@@ -10,5 +10,13 @@
     "Me": {
         "image": "./V1/V3.jpg",
         "voice": ["./SoundNames/Vsound.mp3", "./SoundNames/Vsound2.mp3", "./SoundNames/Vsound3.mp3"]
+        },
+    "Shestakov": {
+        "image": "./Images/Shestakov.png",
+        "voice": ["./SoundNames/ShestakovSound1.mp3", "./SoundNames/ShestakovSound2.mp3", "./SoundNames/ShestakovSound3.mp3"]
+        },
+    "Alina": {
+        "image": "./Images/Alina.png",
+        "voice": ["./SoundNames/AlinaSound1.mp3", "./SoundNames/AlinaSound2.mp3", "./SoundNames/AlinaSound3.mp3"]
         }
 }

@@ -16,8 +16,6 @@ import json
 
 
 
-
-
 # say a greeting for each name
 def playback_sounding(list_mp3_files):
     for sound in list_mp3_files:
@@ -32,8 +30,6 @@ def compare_face(name, dictionary, default="Not in the dictionary"):
     else:
         print(default)
         return None
-
-
 
 class FaceRecognitionError(Exception): pass
 
@@ -78,24 +74,11 @@ if __name__ == '__main__':
     device = "Cuda" if torch.cuda.is_available() else "CPU"
     print(f"Using {device} device")
 
+    # It is possible to run the recognition process in parallel threads ==>
     # if device=="CPU":
     #     count_kernels = subprocess.run('face_recognition --cpus -1 ./KNOWN_PEOPLE_FOLDER/ ./IMAGE_TO_CHECK/'.split(),
     #                                capture_output=True)
     #     print(str(count_kernels))
-
-    # Get a reference to webcam #0 (the default one)
-    video_capture = cv2.VideoCapture(1)
-
-    # Find OpenCV version
-    (major_ver, _, _) = (cv2.__version__).split('.')
-
-    # be sure of the fps
-    if int(major_ver) < 3:
-        fps = video_capture.get(cv2.cv.CV_CAP_PROP_FPS)
-        print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
-    else:
-        fps = video_capture.get(cv2.CAP_PROP_FPS)
-        print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
 
     check_file = pathlib.Path('created_instances.piсkle').is_file()
     if check_file:
@@ -115,18 +98,33 @@ if __name__ == '__main__':
 
     # dict_persons = {
     #     'Jolie': {
-    #     'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
-    #     'voice': ['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3']
-    # },
-    #     'Katrin': {
-    #     'image': "./IMAGE_TO_CHECK/K1.jpg",
-    #     'voice': ['./SoundNames/Ksound.mp3', './SoundNames/Ksound2.mp3', './SoundNames/Ksound3.mp3']
-    # },
+    #         'image': "./KNOWN_PEOPLE_FOLDER/Jolie.jpg",
+    #         'voice': ['./SoundNames/Jsound.mp3', './SoundNames/Jsound2.mp3', './SoundNames/Jsound3.mp3']
+    #     },
+    #         'Katrin': {
+    #         'image': "./IMAGE_TO_CHECK/K1.jpg",
+    #         'voice': ['./SoundNames/Ksound.mp3', './SoundNames/Ksound2.mp3', './SoundNames/Ksound3.mp3']
+    #     },
     #     'Me': {
-    #     'image': "./V1/V3.jpg",
-    #     'voice': ['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3']
+    #         'image': "./V1/V3.jpg",
+    #         'voice': ['./SoundNames/Vsound.mp3', './SoundNames/Vsound2.mp3', './SoundNames/Vsound3.mp3']
     #     }
     # }
+
+    # Get a reference to webcam #0 (the default one)
+    video_capture = cv2.VideoCapture(1)
+
+    # Find OpenCV version
+    (major_ver, _, _) = (cv2.__version__).split('.')
+
+    # be sure of the fps
+    if int(major_ver) < 3:
+        fps = video_capture.get(cv2.cv.CV_CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
+    else:
+        fps = video_capture.get(cv2.CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
+
 
     # Initialize some variables
     face_locations = []
@@ -231,7 +229,7 @@ if __name__ == '__main__':
 
         process_this_frame = False
         countFrame += 1
-        if countFrame > 15:
+        if countFrame > 2:
             process_this_frame = True
             countFrame = 0
 
