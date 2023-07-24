@@ -11,9 +11,9 @@
         "image": "./V1/V3.jpg",
         "voice": ["./SoundNames/Vsound.mp3", "./SoundNames/Vsound2.mp3", "./SoundNames/Vsound3.mp3"]
         },
-    "Shestakov": {
-        "image": "./Images/Shestakov.png",
-        "voice": ["./SoundNames/ShestakovSound1.mp3", "./SoundNames/ShestakovSound2.mp3", "./SoundNames/ShestakovSound3.mp3"]
+    "SomeMan": {
+        "image": "./Images/SomeMan.png",
+        "voice": ["./SoundNames/SomeSound1.mp3", "./SoundNames/SomeSound2.mp3", "./SoundNames/SomeSound3.mp3"]
         },
     "Alina": {
         "image": "./Images/Alina.png",
